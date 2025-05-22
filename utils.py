@@ -6,10 +6,10 @@ import face_recognition
 import numpy as np
 import mediapipe as mp
 
-# Just setting up FaceMesh to use later for blinking/liveliness
+#setting up FaceMesh to use  for liveliness
 mesh_model = mp.solutions.face_mesh.FaceMesh(static_image_mode=False, max_num_faces=1)
 
-# Image loader - nothing fancy
+# Image loader 
 def get_img(path):
     img = cv2.imread(path)
     return img
@@ -19,11 +19,11 @@ def find_faces_img(img):
     boxes = face_recognition.face_locations(img)
     return boxes
 
-# Repeating here because sometimes video frame detection acts weird
+# Repeating here because sometimes video frame detection does not work properly
 def find_faces_frame(f):
     return face_recognition.face_locations(f)
 
-# Crude check to see if someone’s actually alive in the frame
+# Crude check to see if someone’s alive in the frame
 def is_real_person(img):
     # convert to RGB bc Mediapipe needs it
     rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
