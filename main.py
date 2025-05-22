@@ -30,7 +30,7 @@ def handle_file(path):
         record_attendance(seen, real)
         print("[IMG]", fname, f"{seen} seen / {real} real")
 
-    # or maybe it's a video?
+    #  it's a video?
     elif fname.endswith(".mp4") or fname.endswith(".webm") or fname.endswith(".avi") or fname.endswith(".mov"):
         seen, real = analyze_vid(path)
         record_attendance(seen, real)
