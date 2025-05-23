@@ -39,26 +39,44 @@ def is_real_person(img):
 
 # Basic video analysis: count faces and whether they blink
 def analyze_vid(p):
-    vid = cv2.VideoCapture(p)
-    seen = 0
-    alive = 0
+    cap = cv2.VideoCapture(p)
+    if not cap.isOpened():
+        print(f"Failed to open video: {video_path}")
+        return -1, -1  # Using -1 to indicate failure
+
+    known_faces = []
+    total_new_faces = 0
+    real_humans = 0
+
+    frame_index = 0  # For debugging if needed
 
     while True:
-        got, frame = vid.read()
-        if not got:
+        success, frame = cap.read()
+        if not success:
+            # print("End of video or read error at frame", frame_index)
             break
 
-        these = find_faces_frame(frame)
-        seen += len(these)
+        frame_index += 1
+      
 
-        for (t, r, b, l) in these:
-            # pull the face region
-            try:
-                region = frame[t:b, l:r]
-                if is_real_person(region):
-                    alive += 1
-            except:
-                continue
+        locations = face_recognition.face_locations(frame)
+        encodings = face_recognition.face_encodings(frame, locations)
 
-    vid.release()
-    return seen, alive
+        for idx, (enc, (top, right, bottom, left)) in enumerate(zip(encodings, locations)):
+            matches = face_recognition.compare_faces(known_faces, enc, tolerance=0.6)
+            if not any(matches):
+               
+                known_faces.append(enc)
+                total_new_faces += 1
+
+                face_img = frame[top:bottom, left:right]
+                try:
+                    if is_real_person(face_img):
+                        real_humans += 1
+                except Exception as e:
+                    print(f"Error in liveliness check at frame {frame_index}, face #{idx}: {e}")
+                    continue  # move on to the next face
+
+    cap.release()
+    return total_new_faces, real_humans
+
